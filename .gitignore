@@ -1,0 +1,5 @@
+.env
+*.mp4
+*.exe
+*.mkv
+.vscode
