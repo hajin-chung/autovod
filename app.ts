@@ -44,7 +44,7 @@ app.post("/webhook/callback", async (c) => {
     if (userId === env.TWITCH_BROADCASTER_ID) {
       (async () => {
         const title = videoTitle(userLogin);
-        const output = `./${title}.ts`;
+        const output = `./video/${title}.ts`;
         // start download
         const streamURL = await getStreamURL(userLogin);
         const code = await download(streamURL, output, undefined);
@@ -60,7 +60,7 @@ app.post("/webhook/callback", async (c) => {
 app.get("/test/download", (c) => {
   const login = c.req.query("login");
   const title = videoTitle(login);
-  const output = `./${title}.ts`;
+  const output = `./video/${title}.ts`;
   (async () => {
     const url = await getStreamURL(login);
 
