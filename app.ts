@@ -75,4 +75,4 @@ app.get("/test/download", (c) => {
 
 app.use("/log", serveStatic({ path: ".log" }));
 
-serve(app.fetch);
+serve(app.fetch, { port: 80 });
