@@ -20,8 +20,7 @@ WEBHOOK_SECRET=
 to test
 
 ```
-cd src
-deno run --allow-net --allow-read --allow-run --watch ./app.ts
+deno run --allow-net --allow-read --allow-run --allow-write --watch ./app.ts
 ```
 
 to compile

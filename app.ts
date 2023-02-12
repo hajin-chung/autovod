@@ -4,11 +4,13 @@ import { serveStatic } from "https://deno.land/x/hono@v2.7.7/middleware.ts";
 import { config } from "https://deno.land/x/dotenv@v3.2.0/mod.ts";
 import { getStreamURL, listWebhook, setupWebhook } from "./twitch.ts";
 import { download } from "./downloader.ts";
-import { exists, videoTitle, writeLog } from "./utils.ts";
+import { videoTitle, writeLog } from "./utils.ts";
 
 const env = config();
+const webhookData = await setupWebhook();
 console.log(env);
 writeLog(`server started with env ${JSON.stringify(env)}`);
+writeLog(`server initialized data: ${JSON.stringify({ webhookData })}`);
 
 const app = new Hono();
 
@@ -19,9 +21,8 @@ app.get("/init", async (c) => {
   // check if ffmpeg exists
   // setup youtube upload logic
   const webhookData = await setupWebhook();
-  const ffmepgExists = await exists("./ffmpeg.exe");
 
-  return c.json({ webhookData, ffmepgExists }, 200);
+  return c.json({ webhookData }, 200);
 });
 
 app.get("/webhook/list", async (c) => {
