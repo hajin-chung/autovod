@@ -1,14 +1,19 @@
 import { readLines } from "https://deno.land/std@0.177.0/io/mod.ts";
+import { writeLog } from "./utils.ts";
 
 type ProgressHandler = (status: { frame: string; bitrate: string }) => void;
 
-type Downloader = (
+export let downloadStatus: "idle" | "downloading" = "idle";
+
+export const download = async (
   input: string,
   output: string,
   progressHandler: ProgressHandler | undefined
-) => Promise<Deno.ProcessStatus>;
+) => {
+  if (downloadStatus !== "idle") {
+    return { error: true, message: "stream already downloading" };
+  }
 
-export const download: Downloader = async (input, output, progressHandler) => {
   const process = Deno.run({
     cmd: [
       "./ffmpeg.exe",
@@ -27,9 +32,11 @@ export const download: Downloader = async (input, output, progressHandler) => {
     stderr: "piped",
   });
 
+  downloadStatus = "downloading";
   handleProgress(process.stderr, progressHandler);
-  
+
   const status = await process.status();
+  downloadStatus = "idle";
   return status;
 };
 
@@ -58,7 +65,7 @@ async function handleProgress(
       if (progressHandler) progressHandler({ frame, bitrate });
       else {
         // default progress handler
-        console.log(`frame: ${frame} | bitrate: ${bitrate}`);
+        writeLog(`frame: ${frame} | bitrate: ${bitrate}`);
       }
       updatedCount = 0;
     }

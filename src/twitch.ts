@@ -1,5 +1,5 @@
 import { config } from "https://deno.land/x/dotenv@v3.2.0/mod.ts";
-import { fetchJSON } from "./utils.ts";
+import { fetchJSON, writeLog } from "./utils.ts";
 
 const env = config();
 
@@ -32,7 +32,7 @@ export async function setupWebhook() {
           },
         }
       );
-      console.log(`removed webhook subscription ${id}`, res.status);
+      writeLog(`removed webhook subscription ${id} ${res.status}`);
     })
   );
 
@@ -112,6 +112,6 @@ export async function getStreamURL(login: string) {
   const { sig, token } = await getPlaybackToken(login);
   const encodedToken = encodeURI(token);
   const url = `https://usher.ttvnw.net/api/channel/hls/${login}.m3u8?acmb=e30%3D&allow_source=true&fast_bread=true&player_backend=mediaplayer&playlist_include_framerate=true&reassignments_supported=true&sig=${sig}&supported_codecs=avc1&token=${encodedToken}&cdm=wv&player_version=1.17.0`;
-  console.log(`stream url: ${url}`);
+  writeLog(`stream url: ${url}`);
   return url;
 }

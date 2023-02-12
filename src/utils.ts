@@ -24,3 +24,8 @@ export const videoTitle = (login: string) => {
   const title = `${date.getFullYear()} ${date.getMonth()} ${date.getDate()} ${login}`;
   return title;
 };
+
+export const writeLog = (str: string) => {
+  const timestamp = new Date().toISOString();
+  Deno.writeTextFile(".log", `${timestamp} ${str}\n`, { append: true });
+};

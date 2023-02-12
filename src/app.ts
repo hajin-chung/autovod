@@ -1,12 +1,14 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { Hono } from "https://deno.land/x/hono@v2.7.7/mod.ts";
+import { serveStatic } from "https://deno.land/x/hono@v2.7.7/middleware.ts";
 import { config } from "https://deno.land/x/dotenv@v3.2.0/mod.ts";
 import { getStreamURL, listWebhook, setupWebhook } from "./twitch.ts";
 import { download } from "./downloader.ts";
-import { exists, videoTitle } from "./utils.ts";
+import { exists, videoTitle, writeLog } from "./utils.ts";
 
 const env = config();
 console.log(env);
+writeLog(`server started with env ${JSON.stringify(env)}`);
 
 const app = new Hono();
 
@@ -41,10 +43,11 @@ app.post("/webhook/callback", async (c) => {
     if (userId === env.TWITCH_BROADCASTER_ID) {
       (async () => {
         const title = videoTitle(userLogin);
+        const output = `./${title}.ts`;
         // start download
         const streamURL = await getStreamURL(userLogin);
-        const code = await download(streamURL, "./videos/test.ts", undefined);
-        console.log(code);
+        const code = await download(streamURL, output, undefined);
+        writeLog(`download exited with ${JSON.stringify(code)}`);
 
         // start uploading
       })();
@@ -55,20 +58,20 @@ app.post("/webhook/callback", async (c) => {
 
 app.get("/test/download", (c) => {
   const login = c.req.query("login");
-  const output = "./test.mkv";
   const title = videoTitle(login);
+  const output = `./${title}.ts`;
   (async () => {
     const url = await getStreamURL(login);
+
+    writeLog(`downloading from url ${url} to output ${output}`);
     const code = await download(url, output, ({ bitrate, frame }) => {
-      console.log({ bitrate, frame });
+      writeLog(JSON.stringify({ bitrate, frame }));
     });
-    console.log(code);
+    writeLog(`download exited with ${JSON.stringify(code)}`);
   })();
   return c.json({ output }, 200);
 });
 
-app.get("/info", (c) => {
-  return c.json({});
-});
+app.use("/log", serveStatic({ path: ".log" }));
 
 serve(app.fetch);
