@@ -16,7 +16,7 @@ export const download = async (
 
   const process = Deno.run({
     cmd: [
-      "./ffmpeg.exe",
+      "ffmpeg",
       "-y",
       "-progress",
       "pipe:2",
