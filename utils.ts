@@ -21,7 +21,7 @@ export const exists = async (filename: string): Promise<boolean> => {
 
 export const videoTitle = (login: string) => {
   const date = new Date();
-  const title = `${date.getFullYear()} ${date.getMonth()} ${date.getDate()} ${login}`;
+  const title = `${date.getFullYear()}_${date.getMonth()}_${date.getDate()}_${login}`;
   return title;
 };
 
