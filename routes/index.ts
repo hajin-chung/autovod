@@ -18,7 +18,7 @@ router.get("/init", async (c) => {
   return c.json({ webhookData }, 200);
 });
 
-router.get("/video/*", serveStatic({ root: "./video" }));
+router.get("/video/*", serveStatic({ root: "./" }));
 
 router.get("*", serveStatic({ root: "./static" }));
 
