@@ -6,10 +6,13 @@ import { writeLog } from "./utils.ts";
 import { router } from "./routes/index.ts";
 
 const env = config();
-const webhookData = await setupWebhook();
 console.log(env);
 writeLog(`server started with env ${JSON.stringify(env)}`);
-writeLog(`server initialized data: ${JSON.stringify({ webhookData })}`);
+
+if (env.ENV !== "TEST") {
+  const webhookData = await setupWebhook();
+  writeLog(`server initialized data: ${JSON.stringify({ webhookData })}`);
+}
 
 const app = new Hono();
 

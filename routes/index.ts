@@ -1,3 +1,4 @@
+import { serveStatic } from "https://deno.land/x/hono@v3.0.0-rc.14/middleware.ts";
 import { Hono } from "https://deno.land/x/hono@v3.0.0-rc.14/mod.ts";
 import { setupWebhook } from "../twitch.ts";
 import { apiRouter } from "./api.ts";
@@ -16,5 +17,9 @@ router.get("/init", async (c) => {
 
   return c.json({ webhookData }, 200);
 });
+
+router.get("*", serveStatic({ root: "./static" }));
+
+router.get("./video/*", serveStatic({ root: "./video" }));
 
 export { router };
