@@ -1,7 +1,12 @@
 const refreshButton = document.getElementById("refresh");
-const toggleButton = document.getElementById("toggle");
 const logContent = document.getElementById("log-content");
-const logSection = document.getElementById("log");
+const messageContent = document.getElementById("messages-content");
+
+const ws = new WebSocket("ws://localhost:1274");
+
+ws.onmessage = (evt) => {
+  messageContent.innerText = evt.data + "\n" + messageContent.innerText;
+}
 
 async function updateLogContent() {
   const res = await fetch("/api/log");
@@ -10,13 +15,6 @@ async function updateLogContent() {
 }
 
 refreshButton.onclick = updateLogContent;
-toggleButton.onclick = () => {
-  if (logSection.classList.contains("expand")) {
-    logSection.classList.remove("expand");
-  } else {
-    logSection.classList.add("expand");
-  }
-}
 
 // init
 const init = async () => {

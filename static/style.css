@@ -27,32 +27,22 @@ section {
   margin-bottom: 20px;
 }
 
-#title {
-  margin-bottom: 20px;
-}
-
-#log {
-  border: 2px solid white;
-  border-radius: 12px;
-  padding: 20px;
-  max-height: 200px;
-  overflow: hidden;
-}
-
-.expand {
-  max-height: none !important;
-}
-
-#log-head {
+section > header {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   margin-bottom: 16px;
 }
 
-#log-content {
+section > nav {
+  display: flex;
+  gap: 16px;
+}
+
+section > details {
   font-family: monospace;
   padding: 20px;
   background-color: #444;
   overflow-x: scroll;
+
 }

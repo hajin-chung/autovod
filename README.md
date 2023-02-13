@@ -23,9 +23,3 @@ to test
 ```
 deno run --allow-net --allow-read --allow-run --allow-write --watch ./app.ts
 ```
-
-to compile
-
-```
-deno compile --allow-net --allow-read --allow-run --output ./bin/app.exe ./src/app.ts
-```

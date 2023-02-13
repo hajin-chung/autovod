@@ -4,6 +4,7 @@ import { serveStatic } from "https://deno.land/x/hono@v3.0.0-rc.14/middleware.ts
 import { download } from "../downloader.ts";
 import { getStreamURL, listWebhook } from "../twitch.ts";
 import { videoTitle, writeLog } from "../utils.ts";
+import { MessageQueue } from "../messageQueue.ts";
 
 const env = config();
 const router = new Hono();
@@ -41,6 +42,7 @@ router.post("/webhook/callback", async (c) => {
 });
 
 router.get("/test/download", (c) => {
+  const queue: MessageQueue = c.get("queue");
   const login = c.req.query("login");
   const title = videoTitle(login);
   const output = `./video/${title}.ts`;
@@ -49,7 +51,7 @@ router.get("/test/download", (c) => {
 
     writeLog(`downloading from url ${url} to output ${output}`);
     const code = await download(url, output, ({ bitrate, frame }) => {
-      writeLog(JSON.stringify({ bitrate, frame }));
+      queue.push(JSON.stringify({ bitrate, frame }));
     });
     writeLog(`download exited with ${JSON.stringify(code)}`);
   })();

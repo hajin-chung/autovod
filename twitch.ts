@@ -44,7 +44,7 @@ export async function setupWebhook() {
     },
     transport: {
       method: "webhook",
-      callback: `${env.ENDPOINT}/webhooks/callback`,
+      callback: `${env.ENDPOINT}/api/webhooks/callback`,
       secret: env.WEBHOOK_SECRET,
     },
   };
