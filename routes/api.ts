@@ -28,7 +28,7 @@ router.post("/webhook/callback", async (c) => {
     if (userId === env.TWITCH_BROADCASTER_ID) {
       (async () => {
         const title = videoTitle(userLogin);
-        const output = `./video/${title}.ts`;
+        const output = `./video/${title}.mkv`;
         // start download
         const streamURL = await getStreamURL(userLogin);
         const code = await download(streamURL, output, undefined);
@@ -45,7 +45,7 @@ router.get("/test/download", (c) => {
   const queue: MessageQueue = c.get("queue");
   const login = c.req.query("login");
   const title = videoTitle(login);
-  const output = `./video/${title}.ts`;
+  const output = `./video/${title}.mkv`;
   (async () => {
     const url = await getStreamURL(login);
 
