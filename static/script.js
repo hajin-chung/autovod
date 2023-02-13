@@ -1,4 +1,5 @@
-const ws = new WebSocket("ws://localhost:1274");
+const WEBSOCKET_ENDPOINT = "ws://ingjjal.tk:1274";
+const ws = new WebSocket(WEBSOCKET_ENDPOINT);
 
 ws.onmessage = (evt) => {
   messageContent.innerText = evt.data + "\n" + messageContent.innerText;
