@@ -27,22 +27,21 @@ section {
   margin-bottom: 20px;
 }
 
-section > header {
+section>header {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   margin-bottom: 16px;
 }
 
-section > nav {
+section>nav {
   display: flex;
   gap: 16px;
 }
 
-section > details {
+section>details {
   font-family: monospace;
   padding: 20px;
   background-color: #444;
-  overflow-x: scroll;
-
+  word-wrap: break-word;
 }
