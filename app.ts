@@ -5,6 +5,7 @@ import { setupWebhook } from "./twitch.ts";
 import { initLog, writeLog } from "./utils.ts";
 import { router } from "./routes/index.ts";
 import { MessageQueue } from "./messageQueue.ts";
+import { Uploader } from "./uploader.ts";
 
 const env = config();
 console.log(env);
@@ -18,9 +19,11 @@ if (env.ENV !== "TEST") {
 
 const app = new Hono();
 const queue = new MessageQueue();
+const uploader = new Uploader();
 
 app.use("*", async (c, next) => {
   c.set('queue', queue);
+  c.set('uploader', uploader);
   await next();
 })
 

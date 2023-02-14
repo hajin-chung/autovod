@@ -5,6 +5,7 @@ import { download } from "../downloader.ts";
 import { getStreamURL, listWebhook } from "../twitch.ts";
 import { videoTitle, writeLog } from "../utils.ts";
 import { MessageQueue } from "../messageQueue.ts";
+import { Uploader } from "../uploader.ts";
 
 const env = config();
 const router = new Hono();
@@ -56,6 +57,30 @@ router.get("/test/download", (c) => {
     writeLog(`download exited with ${JSON.stringify(code)}`);
   })();
   return c.json({ output }, 200);
+});
+
+router.get("/auth/callback", async (c) => {
+  const uploader: Uploader = c.get("uploader");
+  const error = c.req.query("error");
+  const code = c.req.query("code");
+  writeLog(`${error} / ${code}`);
+
+  const redirectURI = `${env.ENDPOINT}/api/auth/callback`;
+  const body = `code=${code}&client_id=${env.GOOGLE_CLIENT_ID}&client_secret=${env.GOOGLE_CLIENT_SECRET}&redirect_uri=${redirectURI}&grant_type=authorization_code`;
+  const res = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body,
+  });
+  const tokens = await res.json();
+  writeLog(JSON.stringify(tokens));
+  const accessToken = tokens.access_token as string;
+  const refreshToken = tokens.refresh_token as string;
+  uploader.setToken({ accessToken, refreshToken });
+
+  return c.json({}, 200);
 });
 
 router.use("/log", serveStatic({ path: ".log" }));
