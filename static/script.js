@@ -1,4 +1,5 @@
-const WEBSOCKET_ENDPOINT = "wss://ingjjal.tk:1274";
+const WEBSOCKET_ENDPOINT = "wss://ingjjal.tk/ws";
+// const WEBSOCKET_ENDPOINT = "ws://localhost/ws";
 const ws = new WebSocket(WEBSOCKET_ENDPOINT);
 
 ws.onmessage = (evt) => {
