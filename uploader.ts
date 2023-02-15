@@ -1,5 +1,5 @@
 import { config } from "https://deno.land/x/dotenv@v3.2.0/mod.ts";
-import { sleep } from "https://deno.land/x/sleep/mod.ts";
+import { sleep } from "https://deno.land/x/sleep@v1.2.1/mod.ts";
 import { writeLog } from "./utils.ts";
 
 const env = config();
@@ -12,7 +12,7 @@ export class Uploader {
   constructor() {
     writeLog(`initializing uploader`);
     const redirectURI = `${env.ENDPOINT}/api/auth/callback`;
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${env.GOOGLE_CLIENT_ID}&redirect_uri=${redirectURI}&scope=https://www.googleapis.com/auth/youtube.upload&access_type=offline&response_type=code`;
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${env.GOOGLE_CLIENT_ID}&redirect_uri=${redirectURI}&scope=https://www.googleapis.com/auth/youtube.upload&access_type=offline&response_type=code&prompt=consent`;
 
     writeLog(`goto ${authUrl}`);
   }
