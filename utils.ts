@@ -27,7 +27,7 @@ export const videoTitle = (login: string) => {
 
 export const writeLog = (str: string) => {
   const timestamp = new Date().toISOString();
-  Deno.writeTextFile(".log", `${timestamp} ${str}\n`, { append: true });
+  Deno.writeTextFileSync(".log", `${timestamp} ${str}\n`, { append: true });
 };
 
 export const initLog = async () => {

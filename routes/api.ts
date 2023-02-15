@@ -46,7 +46,7 @@ router.get("/test/download", (c) => {
   const queue: MessageQueue = c.get("queue");
   const login = c.req.query("login");
   const title = videoTitle(login);
-  const output = `./video/${title}.mkv`;
+  const output = `./video/${title}.ts`;
   (async () => {
     const url = await getStreamURL(login);
 
@@ -59,26 +59,21 @@ router.get("/test/download", (c) => {
   return c.json({ output }, 200);
 });
 
-router.get("/auth/callback", async (c) => {
+router.get("/test/upload", (c) => {
+  const path = c.req.query("path");
+  const queue: MessageQueue = c.get("queue");
+  const uploader: Uploader = c.get("uploader");
+
+  uploader.upload(path, "test", (message) => queue.push(message));
+  return c.json({}, 200);
+});
+
+router.get("/auth/callback", (c) => {
   const uploader: Uploader = c.get("uploader");
   const error = c.req.query("error");
   const code = c.req.query("code");
-  writeLog(`${error} / ${code}`);
-
-  const redirectURI = `${env.ENDPOINT}/api/auth/callback`;
-  const body = `code=${code}&client_id=${env.GOOGLE_CLIENT_ID}&client_secret=${env.GOOGLE_CLIENT_SECRET}&redirect_uri=${redirectURI}&grant_type=authorization_code`;
-  const res = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body,
-  });
-  const tokens = await res.json();
-  writeLog(JSON.stringify(tokens));
-  const accessToken = tokens.access_token as string;
-  const refreshToken = tokens.refresh_token as string;
-  uploader.setToken({ accessToken, refreshToken });
+  writeLog(`error: ${error}, code: ${code}`);
+  uploader.setCode(code);
 
   return c.json({}, 200);
 });

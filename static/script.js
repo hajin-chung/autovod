@@ -12,12 +12,14 @@ const logContent = document.getElementById("log-content");
 const messageContent = document.getElementById("messages-content");
 const loginInput = document.getElementById("login-input");
 const loginButton = document.getElementById("login-button");
-const testButton = document.getElementById("test-button");
+const testWebhookButton = document.getElementById("test-webhook-button");
+const uploadInput = document.getElementById("upload-input");
+const testUploadButton = document.getElementById("test-upload-button");
 
 async function updateLogContent() {
   const res = await fetch("/api/log");
   const log = await res.text();
-  logContent.innerText = log.split("\n").reverse().join("\n");
+  logContent.innerText = log;
 }
 
 refreshButton.onclick = updateLogContent;
@@ -26,7 +28,7 @@ loginButton.onclick = async () => {
   await fetch(`/api/test/download?login=${login}`);
   loginInput.value = "";
 }
-testButton.onclick = async () => {
+testWebhookButton.onclick = async () => {
   const body = {
     "subscription": {
       "id": "f1c2a387-161a-49f9-a165-0f21d7a4e1c4",
@@ -57,6 +59,12 @@ testButton.onclick = async () => {
     method: "POST",
     body: JSON.stringify(body)
   });
+}
+
+testUploadButton.onclick = async () => {
+  const path = uploadInput.value;
+  await fetch(`/api/test/upload?path=${path}`);
+  uploadInput.value = "";
 }
 
 // init
