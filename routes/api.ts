@@ -36,6 +36,8 @@ router.post("/webhook/callback", async (c) => {
         writeLog(`download exited with ${JSON.stringify(code)}`);
 
         // start uploading
+        const uploader: Uploader = c.get("uploader");
+        await uploader.upload(output, title, undefined);
       })();
     }
   }

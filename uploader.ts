@@ -68,7 +68,7 @@ export class Uploader {
   async upload(
     target: string,
     title: string,
-    progressHandler: (message: string) => void
+    _progressHandler: ((message: string) => void) | undefined
   ) {
     // FIXME: check if target exists
     // just refresh every time
