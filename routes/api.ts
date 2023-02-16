@@ -1,11 +1,11 @@
 import { config } from "https://deno.land/x/dotenv@v3.2.0/mod.ts";
 import { Hono } from "https://deno.land/x/hono@v3.0.0-rc.14/mod.ts";
 import { serveStatic } from "https://deno.land/x/hono@v3.0.0-rc.14/middleware.ts";
-import { download } from "../downloader.ts";
 import { getStreamURL, listWebhook } from "../twitch.ts";
 import { videoTitle, writeLog } from "../utils.ts";
 import { MessageQueue } from "../messageQueue.ts";
 import { Uploader } from "../uploader.ts";
+import { Downloader } from "../downloader.ts";
 
 const env = config();
 const router = new Hono();
@@ -33,7 +33,8 @@ router.post("/webhook/callback", async (c) => {
         const output = `./video/${title}.ts`;
         // start download
         const streamURL = await getStreamURL(userLogin);
-        const code = await download(streamURL, output, undefined);
+        const downloader: Downloader = c.get("downloader");
+        const code = await downloader.download(streamURL, output);
         writeLog(`download exited with ${JSON.stringify(code)}`);
 
         if ("success" in code && code.success === true) {
@@ -56,7 +57,8 @@ router.get("/test/full", (c) => {
     const output = `./video/${title}.ts`;
     // start download
     const streamURL = await getStreamURL(login);
-    const code = await download(streamURL, output, undefined);
+    const downloader: Downloader = c.get("downloader");
+    const code = await downloader.download(streamURL, output);
     writeLog(`download exited with ${JSON.stringify(code)}`);
 
     // start uploading
@@ -67,7 +69,6 @@ router.get("/test/full", (c) => {
 });
 
 router.get("/test/download", (c) => {
-  const queue: MessageQueue = c.get("queue");
   const login = c.req.query("login");
   const title = videoTitle(login);
   const output = `./video/${title}.ts`;
@@ -75,9 +76,8 @@ router.get("/test/download", (c) => {
     const url = await getStreamURL(login);
 
     writeLog(`downloading from url ${url} to output ${output}`);
-    const code = await download(url, output, ({ bitrate, frame }) => {
-      queue.push(JSON.stringify({ bitrate, frame }));
-    });
+    const downloader: Downloader = c.get("downloader");
+    const code = await downloader.download(url, output);
     writeLog(`download exited with ${JSON.stringify(code)}`);
   })();
   return c.json({ output }, 200);
@@ -100,6 +100,13 @@ router.get("/auth/callback", (c) => {
   uploader.setCode(code);
 
   return c.json({}, 200);
+});
+
+router.get("/status", (c) => {
+  const downloader: Downloader = c.get("downloader");
+  const uploader: Uploader = c.get("uploader");
+
+  return c.json({ downloader: downloader.status, uploader: uploader.status });
 });
 
 router.use("/log", serveStatic({ path: ".log" }));

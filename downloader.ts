@@ -1,73 +1,58 @@
 import { readLines } from "https://deno.land/std@0.177.0/io/mod.ts";
 import { writeLog } from "./utils.ts";
 
-type ProgressHandler = (status: { frame: string; bitrate: string }) => void;
+type ProgressHandler = (message: string) => void;
 
-export let downloadStatus: "idle" | "downloading" = "idle";
+export class Downloader {
+  process: Deno.Process | undefined;
+  status: "idle" | "running";
+  message: string;
+  progressHandler: ProgressHandler | undefined;
 
-export const download = async (
-  input: string,
-  output: string,
-  progressHandler: ProgressHandler | undefined
-) => {
-  if (downloadStatus !== "idle") {
-    return { error: true, message: "stream already downloading" };
+  constructor(params: { progressHandler?: ProgressHandler }) {
+    writeLog(`initializing downloader`);
+    this.status = "idle";
+    this.message = "waiting for download";
+    this.progressHandler = params.progressHandler;
   }
 
-  const process = Deno.run({
-    cmd: [
-      "ffmpeg",
-      "-y",
-      "-progress",
-      "pipe:2",
-      "-hide_banner",
-      "-loglevel",
-      "error",
-      "-i",
-      input,
-      "-c",
-      "copy",
-      output,
-    ],
-    stderr: "piped",
-  });
-
-  downloadStatus = "downloading";
-  handleProgress(process.stderr, progressHandler);
-
-  const status = await process.status();
-  downloadStatus = "idle";
-  return status;
-};
-
-async function handleProgress(
-  reader: Deno.Reader,
-  progressHandler?: ProgressHandler
-) {
-  let frame = "";
-  let bitrate = "";
-  let updatedCount = 0;
-  for await (const line of readLines(reader)) {
-    const elements = line.split("=");
-    const key = elements[0];
-    const value = elements[1];
-
-    if (key !== "frame" && key !== "bitrate") continue;
-
-    if (key === "frame") {
-      frame = value;
-    } else if (key === "bitrate") {
-      bitrate = value;
+  async download(input: string, output: string) {
+    if (this.status === "running") {
+      const error: Deno.ProcessStatus = {
+        success: false,
+        code: -1,
+      };
+      return error;
     }
 
-    updatedCount++;
-    if (updatedCount % 2 === 0) {
-      if (progressHandler) progressHandler({ frame, bitrate });
-      else {
-        // default progress handler
-        writeLog(`frame: ${frame} | bitrate: ${bitrate}`);
+    this.status = "running";
+    this.process = Deno.run({
+      cmd: [
+        "ffmpeg",
+        "-y",
+        "-progress",
+        "pipe:2",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-i",
+        input,
+        "-c",
+        "copy",
+        output,
+      ],
+      stderr: "piped",
+    });
+
+    if (this.process.stderr) {
+      for await (const line of readLines(this.process.stderr)) {
+        if (this.progressHandler) this.progressHandler(line);
+        else writeLog(line);
       }
-      updatedCount = 0;
     }
+
+    const status = await this.process.status();
+    this.status = "idle";
+    return status;
   }
 }

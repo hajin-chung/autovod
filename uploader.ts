@@ -8,12 +8,14 @@ export class Uploader {
   accessToken: string | undefined;
   refreshToken: string | undefined;
   code: string | undefined;
+  status: "idle" | "uploading";
 
   constructor() {
     writeLog(`initializing uploader`);
     const redirectURI = `${env.ENDPOINT}/api/auth/callback`;
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${env.GOOGLE_CLIENT_ID}&redirect_uri=${redirectURI}&scope=https://www.googleapis.com/auth/youtube.upload&access_type=offline&response_type=code&prompt=consent`;
 
+    this.status = "idle";
     writeLog(`goto ${authUrl}`);
   }
 
@@ -34,7 +36,9 @@ export class Uploader {
         this.accessToken = tokens.access_token as string;
         this.refreshToken = tokens.refresh_token as string;
         writeLog(
-          `tokens set to access: ${cred(this.accessToken)}, refresh: ${cred(this.refreshToken)}`
+          `tokens set to access: ${cred(this.accessToken)}, refresh: ${cred(
+            this.refreshToken
+          )}`
         );
       })
       .catch((err) => {
@@ -114,6 +118,7 @@ export class Uploader {
       return;
     }
 
+    this.status = "uploading";
     const videoStream = videoFile.readable;
     // exponential waiting in seconds
     let cooldown = 1;
@@ -146,6 +151,7 @@ export class Uploader {
         break;
       }
     }
+    this.status = "idle";
     writeLog("ending upload");
   }
 }

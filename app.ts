@@ -6,6 +6,7 @@ import { initLog, writeLog } from "./utils.ts";
 import { router } from "./routes/index.ts";
 import { MessageQueue } from "./messageQueue.ts";
 import { Uploader } from "./uploader.ts";
+import { Downloader } from "./downloader.ts";
 
 const env = config();
 console.log(env);
@@ -19,12 +20,17 @@ if (env.ENV !== "TEST") {
 const app = new Hono();
 const queue = new MessageQueue();
 const uploader = new Uploader();
+const downloader = new Downloader({});
+downloader.progressHandler = (message: string) => {
+  queue.push(message);
+}
 
 app.use("*", async (c, next) => {
-  c.set('queue', queue);
-  c.set('uploader', uploader);
+  c.set("queue", queue);
+  c.set("uploader", uploader);
+  c.set("downloader", downloader);
   await next();
-})
+});
 
 app.route("/", router);
 

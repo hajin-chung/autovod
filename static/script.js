@@ -15,6 +15,9 @@ const loginButton = document.getElementById("login-button");
 const testWebhookButton = document.getElementById("test-webhook-button");
 const uploadInput = document.getElementById("upload-input");
 const testUploadButton = document.getElementById("test-upload-button");
+const statusRefreshButton = document.getElementById("refresh-status");
+const uploaderStatus = document.getElementById("uploader-status");
+const downloaderStatus = document.getElementById("downloader-status");
 
 async function updateLogContent() {
   const res = await fetch("/api/log");
@@ -22,7 +25,15 @@ async function updateLogContent() {
   logContent.innerText = log;
 }
 
+async function updateStatus() {
+  const res = await fetch("/api/status");
+  const status = await res.json();
+  uploaderStatus.innerText = status.uploader;
+  downloaderStatus.innerText = status.downloader;
+}
+
 refreshButton.onclick = updateLogContent;
+statusRefreshButton.onclick = updateStatus;
 loginButton.onclick = async () => {
   const login = loginInput.value;
   await fetch(`/api/test/download?login=${login}`);
@@ -68,8 +79,9 @@ testUploadButton.onclick = async () => {
 }
 
 // init
-const init = async () => {
-  await updateLogContent();
+const init = () => {
+  updateLogContent();
+  updateStatus();
 }
 
-init().catch(err => console.error(err))
+init()
