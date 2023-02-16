@@ -10,7 +10,6 @@ import { Uploader } from "./uploader.ts";
 const env = config();
 console.log(env);
 await initLog();
-writeLog(`server started with env ${JSON.stringify(env)}`);
 
 if (env.ENV !== "TEST") {
   const webhookData = await setupWebhook();

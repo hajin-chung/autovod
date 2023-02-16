@@ -31,11 +31,13 @@ export class Uploader {
     })
       .then((res) => res.json())
       .then((tokens) => {
-        writeLog(JSON.stringify(tokens));
         this.accessToken = tokens.access_token as string;
         this.refreshToken = tokens.refresh_token as string;
         writeLog(
-          `tokens set to access: ${this.accessToken}, refresh: ${this.refreshToken}`
+          `tokens set to access: ${this.accessToken.slice(
+            0,
+            20
+          )}..., refresh: ${this.refreshToken.slice(0, 20)}...`
         );
       })
       .catch((err) => {
@@ -57,9 +59,9 @@ export class Uploader {
         body,
       });
       const data = await res.json();
-      writeLog(JSON.stringify(data));
+      writeLog(JSON.stringify(data).slice(0, 20));
       this.accessToken = data.access_token;
-      writeLog(`refreshed token ${this.accessToken}`);
+      writeLog(`refreshed token ${this.accessToken?.slice(0, 20)}...`);
     } catch (err) {
       writeLog(`error while refreshing token: ${JSON.stringify(err)}`);
     }

@@ -94,7 +94,7 @@ router.get("/auth/callback", (c) => {
   const uploader: Uploader = c.get("uploader");
   const error = c.req.query("error");
   const code = c.req.query("code");
-  writeLog(`error: ${error}, code: ${code}`);
+  writeLog(`error: ${error}, code: ${code.slice(0, 20)}...`);
   uploader.setCode(code);
 
   return c.json({}, 200);
