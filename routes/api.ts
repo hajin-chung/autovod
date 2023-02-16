@@ -21,6 +21,7 @@ router.post("/webhook/callback", async (c) => {
     event: { broadcaster_user_id: string; broadcaster_user_login: string };
   };
   const type = reqData.subscription.type;
+  writeLog(`webhook callback ${reqData}`);
 
   if (type === "stream.online") {
     const userId = reqData.event.broadcaster_user_id;
@@ -29,7 +30,7 @@ router.post("/webhook/callback", async (c) => {
     if (userId === env.TWITCH_BROADCASTER_ID) {
       (async () => {
         const title = videoTitle(userLogin);
-        const output = `./video/${title}.mkv`;
+        const output = `./video/${title}.ts`;
         // start download
         const streamURL = await getStreamURL(userLogin);
         const code = await download(streamURL, output, undefined);
@@ -38,9 +39,28 @@ router.post("/webhook/callback", async (c) => {
         // start uploading
         const uploader: Uploader = c.get("uploader");
         await uploader.upload(output, title, undefined);
+
+        // TODO: properly remove video
       })();
     }
   }
+  return c.json({}, 200);
+});
+
+router.get("/test/full", (c) => {
+  const login = c.req.query("login");
+  (async () => {
+    const title = videoTitle(login);
+    const output = `./video/${title}.ts`;
+    // start download
+    const streamURL = await getStreamURL(login);
+    const code = await download(streamURL, output, undefined);
+    writeLog(`download exited with ${JSON.stringify(code)}`);
+
+    // start uploading
+    const uploader: Uploader = c.get("uploader");
+    await uploader.upload(output, title, undefined);
+  })();
   return c.json({}, 200);
 });
 
