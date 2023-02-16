@@ -1,6 +1,6 @@
 import { config } from "https://deno.land/x/dotenv@v3.2.0/mod.ts";
 import { sleep } from "https://deno.land/x/sleep@v1.2.1/mod.ts";
-import { writeLog } from "./utils.ts";
+import { cred, writeLog } from "./utils.ts";
 
 const env = config();
 
@@ -34,10 +34,7 @@ export class Uploader {
         this.accessToken = tokens.access_token as string;
         this.refreshToken = tokens.refresh_token as string;
         writeLog(
-          `tokens set to access: ${this.accessToken.slice(
-            0,
-            20
-          )}..., refresh: ${this.refreshToken.slice(0, 20)}...`
+          `tokens set to access: ${cred(this.accessToken)}, refresh: ${cred(this.refreshToken)}`
         );
       })
       .catch((err) => {
@@ -59,9 +56,9 @@ export class Uploader {
         body,
       });
       const data = await res.json();
-      writeLog(JSON.stringify(data).slice(0, 20));
+      writeLog(cred(JSON.stringify(data)));
       this.accessToken = data.access_token;
-      writeLog(`refreshed token ${this.accessToken?.slice(0, 20)}...`);
+      writeLog(`refreshed token ${cred(this.accessToken)}`);
     } catch (err) {
       writeLog(`error while refreshing token: ${JSON.stringify(err)}`);
     }
@@ -113,7 +110,7 @@ export class Uploader {
     const uploadURL = initRes.headers.get("Location");
     writeLog(`got upload url ${uploadURL}`);
     if (!uploadURL) {
-      writeLog(`got upload url ${uploadURL}`);
+      writeLog(`got no upload url ${uploadURL}`);
       return;
     }
 
@@ -130,8 +127,8 @@ export class Uploader {
         body: videoStream,
       });
       const { status } = uploadRes;
-      if (status === 201) {
-        writeLog("upload success");
+      if (status === 201 || status === 200) {
+        writeLog(`upload success status: ${status}`);
         break;
       } else if (
         status === 500 ||

@@ -6,19 +6,6 @@ export async function fetchJSON(url: string, init?: RequestInit) {
   return json;
 }
 
-export const exists = async (filename: string): Promise<boolean> => {
-  try {
-    await Deno.stat(filename);
-    return true;
-  } catch (error) {
-    if (error instanceof Deno.errors.NotFound) {
-      return false;
-    } else {
-      throw error;
-    }
-  }
-};
-
 export const videoTitle = (login: string) => {
   const date = new Date();
   const title = `${date.getFullYear()}_${date.getMonth()}_${date.getDate()}_${login}`;
@@ -33,4 +20,9 @@ export const writeLog = (str: string) => {
 export const initLog = async () => {
   await Deno.create("./.log");
   writeLog("initialize log file");
-}
+};
+
+export const cred = (secret: string | undefined) => {
+  if (secret) return `${secret.slice(0, 10)}...`;
+  else return "undefined";
+};
