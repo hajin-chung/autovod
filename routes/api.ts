@@ -36,9 +36,11 @@ router.post("/webhook/callback", async (c) => {
         const code = await download(streamURL, output, undefined);
         writeLog(`download exited with ${JSON.stringify(code)}`);
 
-        // start uploading
-        const uploader: Uploader = c.get("uploader");
-        await uploader.upload(output, title, undefined);
+        if ("success" in code && code.success === true) {
+          // start uploading
+          const uploader: Uploader = c.get("uploader");
+          await uploader.upload(output, title, undefined);
+        }
 
         // TODO: properly remove video
       })();
